@@ -1,0 +1,62 @@
+
+// Subject interface
+public interface IDownloader
+{
+    void Download(string url);
+}
+
+// Real Subject
+public class Downloader : IDownloader
+{
+    public void Download(string url)
+    {
+        Console.WriteLine($"Downloading content from {url}");
+    }
+}
+
+// Proxy class with caching functionality
+public class DownloaderProxy : IDownloader
+{
+    private readonly IDownloader _realDownloader;
+    private readonly Dictionary<string, string> _cache;
+
+    public DownloaderProxy()
+    {
+        _realDownloader = new Downloader();
+        _cache = new Dictionary<string, string>();
+    }
+
+    public void Download(string url)
+    {
+        if (_cache.ContainsKey(url))
+        {
+            Console.WriteLine($"Retrieving content from cache for {url}");
+        }
+        else
+        {
+            // If not in cache, download the content using the real downloader
+            _realDownloader.Download(url);
+
+            // Cache the downloaded content
+            _cache[url] = $"Content for {url}";
+        }
+    }
+}
+class Program
+{
+    static void Main()
+    {
+        // Using the Proxy pattern for downloading with caching
+
+        // Using the real downloader
+        IDownloader realDownloader = new Downloader();
+        realDownloader.Download("https://example.com/file1");
+
+        Console.WriteLine();
+
+        // Using the downloader proxy with caching
+        IDownloader downloaderProxy = new DownloaderProxy();
+        downloaderProxy.Download("https://example.com/file2");  // Downloading for the first time
+        downloaderProxy.Download("https://example.com/file2");  // Retrieving from cache the second time
+    }
+}
